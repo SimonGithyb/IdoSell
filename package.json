@@ -12,8 +12,13 @@
   "dependencies": {
     "@api/idosell": "file:.api/apis/idosell",
     "bree": "^9.2.4",
+    "config": "3.3.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "express-session": "^1.18.1",
+    "json2csv": "^6.0.0-alpha.2",
+    "mongoose": "^8.9.4"
   }
 }
