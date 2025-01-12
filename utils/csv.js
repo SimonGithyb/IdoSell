@@ -1,36 +1,18 @@
+const Json2csvParser = require("json2csv").Parser;
 
 const convertJsonToCsv = (data) => {
-    const header = ['orderID', 'productID', 'quantity', 'orderWorth' ];
-    const columnDelimiter = ",";
-    const lineDelimiter = "\n";
-    keys = Object.keys(data[0])
-    
-    result = ""
-    result += header.join(columnDelimiter)
-    result += lineDelimiter
-    
-    data.forEach(item => {
-        ctr = 0
-        keys.forEach(key => {
-            if (ctr > 0) {
-                result += columnDelimiter
-            }
-            if(key === 'products') {
-                item[key].forEach(prod => {
-                    prod;
-                    result += `${prod.productID},` + `${prod.quantity},`
-                });
-            } else {
-                result += typeof item[key] === "string" && item[key].includes(columnDelimiter) ? `"${item[key]}"` : item[key]
-     
-            }
-            ctr++;
-        })
-        result += lineDelimiter
-    })
+    const objectData = data.map(d => d.toObject());
+    const dataToContert = [];
+    objectData.map(d => dataToContert.push({
+        orderID: d.orderID,
+        products: d.products,
+        orderWorth: d.orderWorth 
+    }))
 
-    return result;
-}
+    const json2csvParser = new Json2csvParser({  });
+    return json2csvParser.parse(dataToContert);
+};
+
 module.exports = {
     convertJsonToCsv
 }
