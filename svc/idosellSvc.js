@@ -21,9 +21,16 @@ class IdosellSvc {
             .catch(err => console.error(err));
     }
 
-    async getOrdersFromSerialnumber(serialNumber) {
+    async getOrdersFromSerialnumber(serialNumber, limit = 100) {
         return idosell.ordersOrdersGetPost({
-            params: {ordersRange: {ordersSerialNumberRange: {ordersSerialNumberBegin: serialNumber}}}
+            params: {
+                ordersRange: {
+                    ordersSerialNumberRange: {
+                        ordersSerialNumberBegin: serialNumber,
+                        ordersSerialNumberEnd: (serialNumber + limit)
+                }
+                }
+              }
           })
             .then(({ data }) => data)
             .catch(err => console.error(err));

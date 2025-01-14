@@ -12,6 +12,7 @@ orderSchema = new Schema({
         ],
         orderWorth: { type: Number },
         clientId: { type: Number },
+        serialNumber: { type: Number }
 }, {collection: 'order'});
 
 Order = mongoose.model('Order', orderSchema);
