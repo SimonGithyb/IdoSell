@@ -21,7 +21,6 @@ const main = async () => {
             lastOrderSerialnumber = lastModel[0].serialNumber;
             lastOrderSerialnumber++;
         }
-        console.log(lastOrderSerialnumber)
     
         const orderList = await idosellSvc.getOrdersFromSerialnumber(lastOrderSerialnumber);
     
