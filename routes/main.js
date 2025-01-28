@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require("jsonwebtoken");
+const bcrypt = require('bcrypt');
+const stream = require('stream'); 
 
 const { convertJsonToCsv } = require('../utils/csv');
 const orderModel = require('../models/order');
@@ -19,14 +21,41 @@ const authenticateToken = (req,res,next) =>{
     })
   }
 
+const hashPassword = async (pass) => {
+    const salt = await bcrypt.genSalt();
+    return await bcrypt.hash(pass, salt);
+}
+
+router.put("/registration", async (req, res) => {
+    const { login, password } = req.body;
+    const findUser = await userModel.findOne({login});
+    
+    if(user)
+        return res.json('User with this user name exist').sendStatus(401);
+
+    const lastClientId = await userModel.find().sort( [['cilentId', -1]]).limit(1);
+    const clientId = lastClientId++;
+
+    new userModel({
+        login,
+        password,
+        clientId,
+    })
+    .save();
+
+
+});
+
 router.post("/login", async (req, res) => {
     const { login, password } = req.body;
 
-    const user = await userModel.find({login, password});
+    const user = await userModel.findOne({ login, password });
 
     if(user == null)
         return res.sendStatus(401);
-    
+
+    const hashPass = await hashPassword(password);
+    user.password = hashPass;
     const accessToken = jwt.sign(JSON.stringify(user) , process.env.SECRET_ACCESS_TOKEN);
     res.send({accessToken : accessToken});
 });
@@ -46,7 +75,11 @@ router.get('/',
             }
 
             const dataCsv = convertJsonToCsv(allOrders);
-            res.status(200).send(dataCsv);
+            const readStream = new stream.PassThrough();
+            readStream.end(Buffer.from(dataCsv));
+            res.set('Content-disposition', `attachment; filename=products.csv`);
+            res.set('Content-Type', 'text/csv; charset=UTF-8');
+            readStream.pipe(res);
         } catch(err) {
             console.error(err);
             res.status(500).json('Server error');
@@ -71,8 +104,12 @@ router.get('/:id',
             }
 
             const dataCsv = convertJsonToCsv(data);
-            
-            res.status(200).send(dataCsv);
+            const readStream = new stream.PassThrough();
+            readStream.end(Buffer.from(dataCsv));
+            res.set('Content-disposition', `attachment; filename=products.csv`);
+            res.set('Content-Type', 'text/csv; charset=UTF-8');
+            readStream.pipe(res);
+
         } catch(err) {
             console.error(err);
             res.status(500).json('Server error');
@@ -103,8 +140,11 @@ router.get('/byWorth/:minWorth?/:maxWorth?',
                 });
             }
             const dataCsv = convertJsonToCsv(dataBetween);
-            
-            res.status(200).send(dataCsv);
+            const readStream = new stream.PassThrough();
+            readStream.end(Buffer.from(dataCsv));
+            res.set('Content-disposition', `attachment; filename=products.csv`);
+            res.set('Content-Type', 'text/csv; charset=UTF-8');
+            readStream.pipe(res);
         } catch(err) {
             console.error(err);
             res.status(500).json('Server error');
